@@ -44,7 +44,7 @@ fn main() {
         };
 
         let ans = (x + y).to_string() + "\n";
-        return Response::ok(&ans);
+        Response::ok(&ans)
     });
     server.run(no_threads)
 }

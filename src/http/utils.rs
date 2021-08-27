@@ -8,5 +8,5 @@ pub fn parse_url_param(input: &str) -> Result<HashMap<&str, &str>, &'static str>
         };
         ans.insert(key, value);
     }
-    return Ok(ans);
+    Ok(ans)
 }

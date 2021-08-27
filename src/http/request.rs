@@ -40,11 +40,11 @@ impl ReadFrom for Request {
         // let body = buff_str_splitted.intersperse("\n").collect();
         let body = buff_str_splitted.collect::<Vec<&str>>().join("\n");
 
-        return Ok(Self {
+        Ok(Self {
             method,
             path,
             headers,
             body,
-        });
+        })
     }
 }

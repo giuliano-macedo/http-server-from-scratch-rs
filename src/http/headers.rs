@@ -46,7 +46,7 @@ impl TryFrom<&mut Split<'_, char>> for Headers {
             };
             data.insert(String::from(k), String::from(v));
         }
-        return Ok(Self { data });
+        Ok(Self { data })
     }
 }
 
