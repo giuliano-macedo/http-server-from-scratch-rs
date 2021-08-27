@@ -5,12 +5,14 @@ pub use path::Path;
 pub use request::Request;
 pub use response::Response;
 use router::{Router, Callback};
+use serve::serve;
 pub use server::Server;
 pub use status_code::StatusCode;
 use traits::{ReadFrom, WriteTo};
 pub use utils::parse_url_param;
 
 mod headers;
+mod serve;
 mod method;
 mod mime_type;
 mod path;
