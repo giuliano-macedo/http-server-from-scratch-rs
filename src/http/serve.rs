@@ -33,11 +33,10 @@ pub fn serve(thread_name: &str, router: &Router, stream: StreamType) -> Result<(
     let (mut client, client_ip) = stream.or(Err(ServeError::StartConnection))?;
 
     let mut reader = BufReader::with_capacity(4000, &mut client);
-    let req =
-        Request::read_from(&mut reader).or_else(|e| Err(ServeError::RequestRead(client_ip, e)))?;
+    let req = Request::read_from(&mut reader).map_err(|e| ServeError::RequestRead(client_ip, e))?;
     let res = router.handle_request(&req);
     res.write_to(&mut client)
-        .or_else(|e| Err(ServeError::ResponseRead(client_ip, e)))?;
+        .map_err(|e| ServeError::ResponseRead(client_ip, e))?;
 
     let duration = start.elapsed();
 
