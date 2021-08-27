@@ -4,9 +4,11 @@ use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        panic!("[USAGE] {} <PORT>", args[0]);
+    if args.len() != 3 {
+        panic!("[USAGE] {} <PORT> <NO_THREADS>", args[0]);
     }
+    let no_threads:usize = args[2].parse().unwrap();
+    
     let mut server = Server::new("0.0.0.0", &args[1]);
     server.on_file(r"/index.html", "./static/index.html");
     server.on_file(r"/favicon.png", "./static/favicon.png");
@@ -44,5 +46,5 @@ fn main() {
         let ans = (x + y).to_string() + "\n";
         return Response::ok(&ans);
     });
-    server.run()
+    server.run(no_threads)
 }

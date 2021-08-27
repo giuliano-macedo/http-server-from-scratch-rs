@@ -5,9 +5,10 @@ use std::io::BufReader;
 use std::net::{SocketAddr, TcpStream};
 use std::time::Instant;
 
+pub type StreamType = Result<(TcpStream, SocketAddr), std::io::Error>;
+
 pub enum ServeError {
     StartConnection,
-    GetClientIp,
     RequestRead(SocketAddr, &'static str),
     ResponseRead(SocketAddr, &'static str),
 }
@@ -16,7 +17,6 @@ impl fmt::Display for ServeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ServeError::StartConnection => write!(f, "couldn't start client connection"),
-            ServeError::GetClientIp => write!(f, "couldn't get client ip address"),
             ServeError::RequestRead(ip, err) => {
                 write!(f, "couldn't read request from {} because '{}'", ip, err)
             }
@@ -27,11 +27,11 @@ impl fmt::Display for ServeError {
     }
 }
 
-pub fn serve(router: &Router, stream: Result<TcpStream, std::io::Error>) -> Result<(), ServeError> {
+pub fn serve(thread_name: &str, router: &Router, stream: StreamType) -> Result<(), ServeError> {
     let start = Instant::now();
 
-    let mut client = stream.or(Err(ServeError::StartConnection))?;
-    let client_ip = client.local_addr().or(Err(ServeError::GetClientIp))?;
+    let (mut client, client_ip) = stream.or(Err(ServeError::StartConnection))?;
+
     let mut reader = BufReader::with_capacity(4000, &mut client);
     let req =
         Request::read_from(&mut reader).or_else(|e| Err(ServeError::RequestRead(client_ip, e)))?;
@@ -42,7 +42,8 @@ pub fn serve(router: &Router, stream: Result<TcpStream, std::io::Error>) -> Resu
     let duration = start.elapsed();
 
     println!(
-        "[{}] {{{}}} {:?} '{}' -> {} {:.2}ms",
+        "#{} [{}] {{{}}} {:?} '{}' -> {} {:.2}ms",
+        thread_name,
         client_ip,
         req.headers.user_agent().unwrap_or(&String::from("None")),
         req.method,

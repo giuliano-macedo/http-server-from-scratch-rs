@@ -2,11 +2,12 @@ use super::{Request, Response};
 use std::collections::HashMap;
 
 pub type Callback = fn(&Request) -> Response;
-
+#[derive(Clone)]
 pub struct Router {
     handlers: HashMap<String, Handler>,
 }
 
+#[derive(Clone)]
 enum Handler {
     Callback(Callback),
     File(String),
